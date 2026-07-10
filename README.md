@@ -33,7 +33,12 @@ npm run build
 npm run test
 npm run lint
 npm run typecheck
+npm run cap:add:ios
+npm run cap:sync
+npm run cap:open:ios
 ```
+
+App Store申請に向けた準備メモは `docs/app-store-prep.md` にまとめています。
 
 ## ゲームルール
 

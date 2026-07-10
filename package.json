@@ -9,7 +9,10 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "cap:add:ios": "npm run build && cap add ios",
+    "cap:sync": "npm run build && cap sync",
+    "cap:open:ios": "cap open ios"
   },
   "repository": {
     "type": "git",
@@ -28,9 +31,12 @@
   },
   "homepage": "https://github.com/bonbon-create/sukimagame#readme",
   "dependencies": {
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/ios": "^8.4.1",
     "phaser": "^4.2.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.4.1",
     "@eslint/js": "^10.0.1",
     "eslint": "^10.6.0",
     "globals": "^17.7.0",

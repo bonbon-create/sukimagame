@@ -9,7 +9,7 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['src/**/*.ts', 'tests/**/*.ts', 'vite.config.ts'],
+    files: ['src/**/*.ts', 'tests/**/*.ts', 'vite.config.ts', 'capacitor.config.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',

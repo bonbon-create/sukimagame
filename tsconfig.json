@@ -16,5 +16,5 @@
     "noEmit": true,
     "types": ["vitest/globals"]
   },
-  "include": ["src", "tests", "vite.config.ts", "eslint.config.js"]
+  "include": ["src", "tests", "vite.config.ts", "eslint.config.js", "capacitor.config.ts"]
 }
