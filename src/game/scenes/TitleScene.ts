@@ -1,35 +1,40 @@
 import Phaser from 'phaser';
+import { AudioSystem } from '../systems/AudioSystem';
 
 export class TitleScene extends Phaser.Scene {
+  private audioButtonText!: Phaser.GameObjects.Text;
+
   public constructor() {
     super('TitleScene');
   }
 
   public create(): void {
     this.drawBackground();
-    this.add
-      .text(480, 138, '瞬間突破', {
-        fontFamily: 'system-ui, sans-serif',
-        fontSize: '58px',
-        color: '#f6fbff',
-      })
-      .setOrigin(0.5);
-    this.add
-      .text(480, 196, 'NEON GAP', {
-        fontFamily: 'Arial Black, system-ui, sans-serif',
-        fontSize: '42px',
-        color: '#42f8ff',
-      })
-      .setOrigin(0.5);
+    this.add.text(480, 138, '瞬間突破', {
+      fontFamily: 'system-ui, sans-serif',
+      fontSize: '58px',
+      color: '#f6fbff',
+    }).setOrigin(0.5);
+    this.add.text(480, 196, 'NEON GAP', {
+      fontFamily: 'Arial Black, system-ui, sans-serif',
+      fontSize: '42px',
+      color: '#42f8ff',
+    }).setOrigin(0.5);
     this.add.text(480, 238, '一瞬のスキマを撃ち抜け', {
       fontFamily: 'system-ui, sans-serif',
       fontSize: '20px',
       color: '#ff85f7',
     }).setOrigin(0.5);
 
-    this.createButton(480, 318, 'ゲームスタート', () => this.scene.start('GameScene'));
-    this.createButton(480, 378, '遊び方', () => this.scene.start('HowToScene'));
-    this.createButton(480, 438, '記録', () => this.scene.start('RecordsScene'));
+    this.createButton(480, 310, 'ゲームスタート', () => this.startScene('GameScene'));
+    this.createButton(480, 366, '遊び方', () => this.startScene('HowToScene'));
+    this.createButton(480, 422, '記録', () => this.startScene('RecordsScene'));
+    this.createAudioButton();
+  }
+
+  private startScene(sceneKey: string): void {
+    AudioSystem.shared.play('button');
+    this.scene.start(sceneKey);
   }
 
   private createButton(x: number, y: number, label: string, onClick: () => void): void {
@@ -40,10 +45,28 @@ export class TitleScene extends Phaser.Scene {
       color: '#f7fbff',
     }).setOrigin(0.5);
 
-    box.setInteractive({ useHandCursor: true });
-    box.on('pointerdown', onClick);
-    text.setInteractive({ useHandCursor: true });
-    text.on('pointerdown', onClick);
+    box.setInteractive({ useHandCursor: true }).on('pointerdown', onClick);
+    text.setInteractive({ useHandCursor: true }).on('pointerdown', onClick);
+  }
+
+  private createAudioButton(): void {
+    const box = this.add.rectangle(824, 44, 142, 34, 0x101a32, 0.9).setStrokeStyle(2, 0xff4ff6);
+    this.audioButtonText = this.add.text(824, 44, this.audioLabel(), {
+      fontFamily: 'system-ui, sans-serif',
+      fontSize: '17px',
+      color: '#f7fbff',
+    }).setOrigin(0.5);
+    const toggle = () => {
+      AudioSystem.shared.toggle();
+      AudioSystem.shared.play('button');
+      this.audioButtonText.setText(this.audioLabel());
+    };
+    box.setInteractive({ useHandCursor: true }).on('pointerdown', toggle);
+    this.audioButtonText.setInteractive({ useHandCursor: true }).on('pointerdown', toggle);
+  }
+
+  private audioLabel(): string {
+    return AudioSystem.shared.isEnabled ? '音声 ON' : '音声 OFF';
   }
 
   private drawBackground(): void {

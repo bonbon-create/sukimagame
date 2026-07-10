@@ -94,3 +94,9 @@ export type ResultPayload = {
   oneShotCount: number;
   shotCount: number;
 };
+
+export type RecordEntry = ResultPayload & {
+  id: string;
+  playedAt: string;
+  accuracy: number;
+};
