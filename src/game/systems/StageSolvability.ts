@@ -33,3 +33,10 @@ export function simulateStageSolvability(
     clearSamples,
   };
 }
+
+export function isStageClearAt(stage: StageDefinition, elapsedSeconds: number): boolean {
+  const start = { x: PLAYER_X + 40, y: LASER_Y };
+  const end = { x: TARGET_X, y: LASER_Y };
+  const shapes = stage.obstacles.flatMap((obstacle) => createObstacleCollisionShapes(obstacle, elapsedSeconds));
+  return isLaserPathClear(start, end, shapes);
+}
