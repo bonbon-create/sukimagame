@@ -1,0 +1,42 @@
+{
+  "name": "sukimagame",
+  "version": "1.0.0",
+  "description": "NEON GAP - original one-tap timing game prototype",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bonbon-create/sukimagame.git"
+  },
+  "keywords": [
+    "phaser",
+    "typescript",
+    "vite",
+    "game"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/bonbon-create/sukimagame/issues"
+  },
+  "homepage": "https://github.com/bonbon-create/sukimagame#readme",
+  "description": "",
+  "dependencies": {
+    "phaser": "^4.2.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.6.0",
+    "globals": "^17.7.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.63.0",
+    "vite": "^8.1.4",
+    "vitest": "^4.1.10"
+  }
+}

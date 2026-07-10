@@ -1,0 +1,11 @@
+export const BASE_WIDTH = 960;
+export const BASE_HEIGHT = 540;
+export const PLAYER_X = 92;
+export const TARGET_X = 846;
+export const LASER_Y = 270;
+export const START_TIME_SECONDS = 60;
+export const REFIRE_COOLDOWN_MS = 750;
+export const ONE_SHOT_BONUS_SECONDS = 1;
+export const WARNING_TIME_SECONDS = 10;
+export const STAGE_TRANSITION_MS = 650;
+export const DEBUG_COLLISION = false;
