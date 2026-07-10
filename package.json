@@ -2,6 +2,7 @@
   "name": "sukimagame",
   "version": "1.0.0",
   "description": "NEON GAP - original one-tap timing game prototype",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
@@ -26,7 +27,6 @@
     "url": "https://github.com/bonbon-create/sukimagame/issues"
   },
   "homepage": "https://github.com/bonbon-create/sukimagame#readme",
-  "description": "",
   "dependencies": {
     "phaser": "^4.2.1"
   },

@@ -69,7 +69,7 @@ export class GameScene extends Phaser.Scene {
 
     this.background = this.add.graphics();
     this.background.setDepth(-10);
-    this.drawBackground(false, 0);
+    this.drawBackground(false);
     this.alarmOverlay = this.add.rectangle(480, 270, 960, 540, 0xff1f3d, 0).setDepth(-5);
 
     this.progress = new ProgressBar(this, this.stageSystem.totalStages);
@@ -191,7 +191,7 @@ export class GameScene extends Phaser.Scene {
     this.elapsedSeconds = 0;
     this.statusText.setText('スキマを狙ってタップ');
     this.statusText.setColor('#f7fbff');
-    this.drawBackground(this.timer.remaining <= WARNING_TIME_SECONDS, 0);
+    this.drawBackground(this.timer.remaining <= WARNING_TIME_SECONDS);
     this.updateHud();
   }
 
@@ -205,7 +205,9 @@ export class GameScene extends Phaser.Scene {
     if (warning) {
       const pulse = 0.14 + Math.sin(time * 0.012) * 0.08;
       this.alarmOverlay.setAlpha(pulse);
-      this.drawBackground(true, pulse);
+      if (!this.warningActive) {
+        this.drawBackground(true);
+      }
       if (!this.warningActive || time >= this.nextWarningBeepAt) {
         AudioSystem.shared.play('warningAlarm');
         this.nextWarningBeepAt = time + 1100;
@@ -213,7 +215,7 @@ export class GameScene extends Phaser.Scene {
     } else {
       this.alarmOverlay.setAlpha(0);
       if (this.warningActive) {
-        this.drawBackground(false, 0);
+        this.drawBackground(false);
       }
     }
 
@@ -247,11 +249,11 @@ export class GameScene extends Phaser.Scene {
     this.pauseOverlay = null;
   }
 
-  private drawBackground(warning: boolean, pulse: number): void {
+  private drawBackground(warning: boolean): void {
     this.background.clear();
     this.background.fillStyle(warning ? 0x16070b : 0x050712, 1);
     this.background.fillRect(0, 0, 960, 540);
-    this.background.lineStyle(1, warning ? 0x743046 : 0x172642, 0.5 + pulse);
+    this.background.lineStyle(1, warning ? 0x743046 : 0x172642, 0.5);
     for (let x = -50; x < 1040; x += 52) {
       for (let y = -30; y < 600; y += 45) {
         this.background.strokeCircle(x + ((y / 45) % 2) * 26, y, 18);
@@ -260,7 +262,7 @@ export class GameScene extends Phaser.Scene {
     this.background.lineStyle(2, 0x42f8ff, 0.28);
     this.background.lineBetween(PLAYER_X, LASER_Y, TARGET_X, LASER_Y);
     if (warning) {
-      this.background.lineStyle(6, 0xff253f, 0.78 + pulse);
+      this.background.lineStyle(6, 0xff253f, 0.82);
       this.background.strokeRect(6, 6, 948, 528);
     }
   }
