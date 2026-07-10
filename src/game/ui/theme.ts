@@ -146,10 +146,14 @@ function drawButtonFace(graphics: Phaser.GameObjects.Graphics, width: number, he
   graphics.fillRoundedRect(-width / 2, -height / 2, width, height, 7);
   graphics.lineStyle(hot ? 3 : 2, accent, hot ? 1 : 0.82);
   graphics.strokeRoundedRect(-width / 2, -height / 2, width, height, 7);
-  graphics.fillStyle(accent, hot ? 0.34 : 0.2);
-  graphics.fillRect(-width / 2 + 8, -height / 2 + 7, 42, height - 14);
   graphics.lineStyle(1, 0xffffff, hot ? 0.34 : 0.18);
-  graphics.lineBetween(-width / 2 + 58, -height / 2 + 8, width / 2 - 12, -height / 2 + 8);
+  graphics.strokeRoundedRect(-width / 2 + 7, -height / 2 + 7, width - 14, height - 14, 5);
+  graphics.fillStyle(accent, hot ? 0.3 : 0.2);
+  graphics.fillRect(-width / 2 + 12, -height / 2 + 8, width - 24, 4);
+  graphics.fillRect(-width / 2 + 12, height / 2 - 12, width - 24, 2);
+  graphics.fillStyle(accent, hot ? 0.9 : 0.66);
+  graphics.fillTriangle(-width / 2 + 16, -height / 2 + 16, -width / 2 + 34, -height / 2 + 16, -width / 2 + 16, -height / 2 + 34);
+  graphics.fillTriangle(width / 2 - 16, height / 2 - 16, width / 2 - 34, height / 2 - 16, width / 2 - 16, height / 2 - 34);
 }
 
 function drawSideFacility(graphics: Phaser.GameObjects.Graphics, x: number): void {

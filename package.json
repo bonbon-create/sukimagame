@@ -1,7 +1,7 @@
 {
   "name": "sukimagame",
   "version": "1.0.0",
-  "description": "NEON GAP - original one-tap timing game prototype",
+  "description": "瞬間突破 - original one-tap timing game",
   "private": true,
   "type": "module",
   "scripts": {
