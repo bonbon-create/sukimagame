@@ -7,11 +7,11 @@ import {
   TARGET_X,
   WARNING_TIME_SECONDS,
 } from '../constants';
-import { MVP_STAGES } from '../data/stages';
+import { STAGES } from '../data/stages';
 import { Laser } from '../entities/Laser';
 import { Player } from '../entities/Player';
 import { TargetCore } from '../entities/TargetCore';
-import { VerticalOscillator } from '../obstacles/VerticalOscillator';
+import { createObstacle } from '../obstacles/createObstacle';
 import { evaluateLaserShot } from '../systems/CollisionSystem';
 import { StageSystem } from '../systems/StageSystem';
 import { TimerSystem } from '../systems/TimerSystem';
@@ -42,7 +42,7 @@ export class GameScene extends Phaser.Scene {
 
   public create(): void {
     this.timer = new TimerSystem(START_TIME_SECONDS);
-    this.stageSystem = new StageSystem(MVP_STAGES);
+    this.stageSystem = new StageSystem(STAGES);
     this.elapsedSeconds = 0;
     this.locked = false;
     this.cooldownUntil = 0;
@@ -139,7 +139,7 @@ export class GameScene extends Phaser.Scene {
 
   private loadStage(stage: StageDefinition): void {
     this.obstacles.forEach((obstacle) => obstacle.destroy());
-    this.obstacles = stage.obstacles.map((definition) => new VerticalOscillator(this, definition));
+    this.obstacles = stage.obstacles.map((definition) => createObstacle(this, definition));
     this.elapsedSeconds = 0;
     this.statusText.setText('スキマを狙ってタップ');
     this.statusText.setColor('#f7fbff');

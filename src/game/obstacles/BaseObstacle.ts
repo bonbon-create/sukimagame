@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import type { CollisionShape, MovementType, ObstacleDefinition, Vector2 } from '../types/game';
+import { DEBUG_COLLISION } from '../constants';
+import { createObstacleCollisionShapes } from './obstacleGeometry';
 
 export abstract class BaseObstacle {
   public readonly id: string;
@@ -13,10 +15,11 @@ export abstract class BaseObstacle {
   public rotation = 0;
 
   protected readonly graphic: Phaser.GameObjects.Graphics;
+  protected elapsedSeconds = 0;
 
   protected constructor(
     protected readonly scene: Phaser.Scene,
-    definition: ObstacleDefinition,
+    protected readonly definition: ObstacleDefinition,
     movementType: MovementType,
   ) {
     this.id = definition.id;
@@ -30,7 +33,12 @@ export abstract class BaseObstacle {
     this.graphic = scene.add.graphics();
   }
 
-  public abstract update(elapsedSeconds: number): void;
+  public update(elapsedSeconds: number): void {
+    this.elapsedSeconds = elapsedSeconds;
+    this.position = this.resolvePosition(elapsedSeconds);
+    this.rotation = (this.definition.rotation ?? 0) + elapsedSeconds * (this.definition.angularSpeed ?? 0) + this.phase;
+    this.render();
+  }
 
   public reset(): void {
     this.position = { ...this.basePosition };
@@ -54,25 +62,73 @@ export abstract class BaseObstacle {
   }
 
   public getCollisionShape(): CollisionShape {
-    return {
-      type: 'aabb',
-      box: {
-        x: this.position.x - this.dimensions.width / 2,
-        y: this.position.y - this.dimensions.height / 2,
-        width: this.dimensions.width,
-        height: this.dimensions.height,
-      },
-    };
+    return this.getCollisionShapes()[0];
+  }
+
+  public getCollisionShapes(): CollisionShape[] {
+    return createObstacleCollisionShapes(this.definition, this.elapsedSeconds);
   }
 
   protected render(): void {
-    const { width, height } = this.dimensions;
     this.graphic.clear();
-    this.graphic.lineStyle(2, 0xff4ff6, 0.95);
-    this.graphic.fillStyle(0x1c153d, 0.92);
-    this.graphic.fillRect(this.position.x - width / 2, this.position.y - height / 2, width, height);
-    this.graphic.strokeRect(this.position.x - width / 2, this.position.y - height / 2, width, height);
-    this.graphic.lineStyle(1, 0x42f8ff, 0.5);
-    this.graphic.lineBetween(this.position.x - width / 2, this.position.y, this.position.x + width / 2, this.position.y);
+    this.getCollisionShapes().forEach((shape, index) => {
+      const fillColor = index % 2 === 0 ? 0x1c153d : 0x101a32;
+      this.graphic.lineStyle(2, 0xff4ff6, 0.95);
+      this.graphic.fillStyle(fillColor, 0.92);
+
+      if (shape.type === 'aabb') {
+        this.graphic.fillRect(shape.box.x, shape.box.y, shape.box.width, shape.box.height);
+        this.graphic.strokeRect(shape.box.x, shape.box.y, shape.box.width, shape.box.height);
+      } else {
+        const points = shape.type === 'obb' ? this.obbPoints(shape.box) : shape.polygon.points;
+        const phaserPoints = points.map((point) => new Phaser.Math.Vector2(point.x, point.y));
+        this.graphic.fillPoints(phaserPoints, true);
+        this.graphic.strokePoints(phaserPoints, true);
+      }
+    });
+
+    if (DEBUG_COLLISION) {
+      this.graphic.lineStyle(1, 0x42f8ff, 0.8);
+      this.getCollisionShapes().forEach((shape) => {
+        if (shape.type === 'aabb') {
+          this.graphic.strokeRect(shape.box.x, shape.box.y, shape.box.width, shape.box.height);
+          return;
+        }
+        const points = shape.type === 'obb' ? this.obbPoints(shape.box) : shape.polygon.points;
+        this.graphic.strokePoints(points.map((point) => new Phaser.Math.Vector2(point.x, point.y)), true);
+      });
+    }
+  }
+
+  private resolvePosition(elapsedSeconds: number): Vector2 {
+    if (this.movementType === 'vertical') {
+      return {
+        x: this.basePosition.x,
+        y: this.basePosition.y + Math.sin(elapsedSeconds * this.speed + this.phase) * this.amplitude,
+      };
+    }
+    if (this.movementType === 'horizontal') {
+      return {
+        x: this.basePosition.x + Math.sin(elapsedSeconds * this.speed + this.phase) * this.amplitude,
+        y: this.basePosition.y,
+      };
+    }
+    return { ...this.basePosition };
+  }
+
+  private obbPoints(box: { center: Vector2; width: number; height: number; rotation: number }): Vector2[] {
+    const halfW = box.width / 2;
+    const halfH = box.height / 2;
+    const cos = Math.cos(box.rotation);
+    const sin = Math.sin(box.rotation);
+    return [
+      { x: -halfW, y: -halfH },
+      { x: halfW, y: -halfH },
+      { x: halfW, y: halfH },
+      { x: -halfW, y: halfH },
+    ].map((corner) => ({
+      x: box.center.x + corner.x * cos - corner.y * sin,
+      y: box.center.y + corner.x * sin + corner.y * cos,
+    }));
   }
 }

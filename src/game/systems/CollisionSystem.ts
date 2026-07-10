@@ -6,6 +6,6 @@ export function evaluateLaserShot(start: Vector2, end: Vector2, obstacles: BaseO
   return isLaserPathClear(
     start,
     end,
-    obstacles.map((obstacle) => obstacle.getCollisionShape()),
+    obstacles.flatMap((obstacle) => obstacle.getCollisionShapes()),
   );
 }

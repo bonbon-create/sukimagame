@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { isLaserPathClear, normalizeAngle, rayIntersectsAABB, rayIntersectsOBB } from '../src/game/geometry/collision';
+import {
+  isLaserPathClear,
+  normalizeAngle,
+  rayIntersectsAABB,
+  rayIntersectsOBB,
+  segmentIntersectsPolygon,
+} from '../src/game/geometry/collision';
+import { createArcPolygon } from '../src/game/obstacles/obstacleGeometry';
 
 describe('collision geometry', () => {
   it('detects an AABB crossing the laser segment', () => {
@@ -24,5 +31,11 @@ describe('collision geometry', () => {
 
   it('normalizes angles into a stable range', () => {
     expect(normalizeAngle(Math.PI * 3)).toBeCloseTo(Math.PI);
+  });
+
+  it('detects an approximated arc polygon crossing the laser', () => {
+    const arc = createArcPolygon({ x: 50, y: 0 }, 32, 14, -0.35, 0.35, 10);
+
+    expect(segmentIntersectsPolygon({ x: 0, y: 0 }, { x: 100, y: 0 }, { points: arc })).toBe(true);
   });
 });

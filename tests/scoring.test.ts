@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MVP_STAGES } from '../src/game/data/stages';
+import { MVP_STAGES, STAGES } from '../src/game/data/stages';
 import { StageSystem } from '../src/game/systems/StageSystem';
 
 describe('StageSystem scoring', () => {
@@ -26,6 +26,16 @@ describe('StageSystem scoring', () => {
 
     expect(stages.advance()).toBe(false);
     expect(stages.advance()).toBe(false);
+    expect(stages.advance()).toBe(true);
+  });
+
+  it('reports completion after all 30 stages', () => {
+    const stages = new StageSystem(STAGES);
+
+    for (let index = 0; index < STAGES.length - 1; index += 1) {
+      expect(stages.advance()).toBe(false);
+    }
+
     expect(stages.advance()).toBe(true);
   });
 });

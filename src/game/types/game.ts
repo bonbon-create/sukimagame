@@ -26,11 +26,31 @@ export type CollisionShape =
   | { type: 'obb'; box: OBB }
   | { type: 'polygon'; polygon: Polygon };
 
-export type MovementType = 'vertical' | 'horizontal' | 'static';
+export type MovementType =
+  | 'vertical'
+  | 'horizontal'
+  | 'slidingPair'
+  | 'rotating'
+  | 'rotatingGroup'
+  | 'orbit'
+  | 'arc'
+  | 'shutter'
+  | 'static';
+
+export type ObstacleKind =
+  | 'verticalBlock'
+  | 'horizontalBlock'
+  | 'slidingPair'
+  | 'rotatingRectangle'
+  | 'rotatingGroup'
+  | 'orbitingBlock'
+  | 'arcGate'
+  | 'shutterGate'
+  | 'staticBlock';
 
 export type ObstacleDefinition = {
   id: string;
-  kind: 'verticalBlock' | 'staticBlock';
+  kind: ObstacleKind;
   x: number;
   y: number;
   width: number;
@@ -38,6 +58,16 @@ export type ObstacleDefinition = {
   amplitude: number;
   speed: number;
   phase: number;
+  rotation?: number;
+  angularSpeed?: number;
+  radius?: number;
+  thickness?: number;
+  startAngle?: number;
+  endAngle?: number;
+  segments?: number;
+  count?: number;
+  gap?: number;
+  spread?: number;
 };
 
 export type StageDefinition = {
@@ -46,6 +76,7 @@ export type StageDefinition = {
   difficulty: number;
   backgroundVariant: 'cyan' | 'magenta' | 'amber';
   targetVariant: 'hex-core';
+  warningThreshold?: number;
   transitionDuration: number;
   obstacles: ObstacleDefinition[];
 };
