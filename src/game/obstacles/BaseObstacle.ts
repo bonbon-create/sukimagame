@@ -72,13 +72,16 @@ export abstract class BaseObstacle {
   protected render(): void {
     this.graphic.clear();
     this.getCollisionShapes().forEach((shape, index) => {
-      const fillColor = index % 2 === 0 ? 0x1c153d : 0x101a32;
-      this.graphic.lineStyle(2, 0xff4ff6, 0.95);
-      this.graphic.fillStyle(fillColor, 0.92);
+      const palette = getObstaclePalette(this.definition.colorVariant, index);
+      this.graphic.lineStyle(2, palette.stroke, 0.95);
+      this.graphic.fillStyle(palette.fill, 0.92);
 
       if (shape.type === 'aabb') {
         this.graphic.fillRect(shape.box.x, shape.box.y, shape.box.width, shape.box.height);
         this.graphic.strokeRect(shape.box.x, shape.box.y, shape.box.width, shape.box.height);
+        this.graphic.lineStyle(1, palette.highlight, 0.6);
+        this.graphic.lineBetween(shape.box.x + 6, shape.box.y + 6, shape.box.x + shape.box.width - 6, shape.box.y + 6);
+        this.graphic.lineBetween(shape.box.x + 6, shape.box.y + shape.box.height - 6, shape.box.x + shape.box.width - 6, shape.box.y + shape.box.height - 6);
       } else {
         const points = shape.type === 'obb' ? this.obbPoints(shape.box) : shape.polygon.points;
         const phaserPoints = points.map((point) => new Phaser.Math.Vector2(point.x, point.y));
@@ -131,4 +134,15 @@ export abstract class BaseObstacle {
       y: box.center.y + corner.x * sin + corner.y * cos,
     }));
   }
+}
+
+function getObstaclePalette(variant: ObstacleDefinition['colorVariant'], index: number): { fill: number; stroke: number; highlight: number } {
+  const palettes = {
+    cyan: { fill: index % 2 === 0 ? 0x0b8bd7 : 0x0a5fb6, stroke: 0x8effff, highlight: 0xd8ffff },
+    magenta: { fill: index % 2 === 0 ? 0x7b2ee6 : 0x5219a8, stroke: 0xff85f7, highlight: 0xffd5fb },
+    red: { fill: index % 2 === 0 ? 0xd53c51 : 0x9e1e35, stroke: 0xffb0bd, highlight: 0xffffff },
+    amber: { fill: index % 2 === 0 ? 0xdb9b1f : 0xb56612, stroke: 0xffe66d, highlight: 0xffffff },
+  };
+
+  return palettes[variant ?? 'cyan'];
 }

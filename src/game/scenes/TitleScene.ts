@@ -1,35 +1,72 @@
 import Phaser from 'phaser';
 import { AudioSystem } from '../systems/AudioSystem';
+import { UI_COLORS, createNeonButton, drawNeonBackdrop, textStyle } from '../ui/theme';
 
 export class TitleScene extends Phaser.Scene {
-  private audioButtonText!: Phaser.GameObjects.Text;
+  private audioButton!: Phaser.GameObjects.Container;
 
   public constructor() {
     super('TitleScene');
   }
 
   public create(): void {
-    this.drawBackground();
-    this.add.text(480, 138, '瞬間突破', {
-      fontFamily: 'system-ui, sans-serif',
-      fontSize: '58px',
-      color: '#f6fbff',
-    }).setOrigin(0.5);
-    this.add.text(480, 196, 'NEON GAP', {
-      fontFamily: 'Arial Black, system-ui, sans-serif',
-      fontSize: '42px',
-      color: '#42f8ff',
-    }).setOrigin(0.5);
-    this.add.text(480, 238, '一瞬のスキマを撃ち抜け', {
-      fontFamily: 'system-ui, sans-serif',
-      fontSize: '20px',
-      color: '#ff85f7',
-    }).setOrigin(0.5);
-
-    this.createButton(480, 310, 'ゲームスタート', () => this.startScene('GameScene'));
-    this.createButton(480, 366, '遊び方', () => this.startScene('HowToScene'));
-    this.createButton(480, 422, '記録', () => this.startScene('RecordsScene'));
+    drawNeonBackdrop(this, 'menu');
+    this.createHero();
+    this.createMainActions();
+    this.createInfoStrip();
     this.createAudioButton();
+  }
+
+  private createHero(): void {
+    const panel = this.add.graphics();
+    panel.fillStyle(0x050b18, 0.82);
+    panel.fillRoundedRect(214, 72, 532, 186, 10);
+    panel.lineStyle(3, UI_COLORS.cyan, 0.86);
+    panel.strokeRoundedRect(214, 72, 532, 186, 10);
+    panel.lineStyle(1, UI_COLORS.magenta, 0.62);
+    panel.strokeRoundedRect(228, 86, 504, 158, 8);
+
+    const title = this.add.text(480, 122, '瞬間突破', textStyle(54, '#f7fbff', true)).setOrigin(0.5);
+    title.setShadow(0, 0, '#42f8ff', 16, true, true);
+    const subtitle = this.add.text(480, 178, 'NEON GAP', textStyle(42, '#42f8ff', true)).setOrigin(0.5);
+    subtitle.setShadow(0, 0, '#ff4ff6', 14, true, true);
+    this.add.text(480, 226, '動く障害物のスキマを狙って、コアを撃ち抜く', textStyle(19, '#ffb6fa')).setOrigin(0.5);
+
+    const scan = this.add.rectangle(252, 252, 130, 2, UI_COLORS.cyan, 0.9);
+    this.tweens.add({
+      targets: scan,
+      x: 708,
+      alpha: 0.25,
+      duration: 1400,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+  }
+
+  private createMainActions(): void {
+    createNeonButton(this, 480, 326, 380, 70, 'ゲームスタート', () => this.startScene('GameScene'), {
+      accent: UI_COLORS.cyan,
+      fontSize: 28,
+    });
+    this.add.text(480, 374, 'タップ / クリック / Space で発射', textStyle(16, '#aeefff')).setOrigin(0.5);
+    createNeonButton(this, 394, 430, 170, 46, '遊び方', () => this.startScene('HowToScene'), {
+      accent: UI_COLORS.magenta,
+      fontSize: 20,
+    });
+    createNeonButton(this, 566, 430, 170, 46, '記録', () => this.startScene('RecordsScene'), {
+      accent: UI_COLORS.amber,
+      fontSize: 20,
+    });
+  }
+
+  private createInfoStrip(): void {
+    const graphics = this.add.graphics();
+    graphics.fillStyle(0x091226, 0.78);
+    graphics.fillRoundedRect(246, 486, 468, 30, 6);
+    graphics.lineStyle(1, UI_COLORS.cyan, 0.42);
+    graphics.strokeRoundedRect(246, 486, 468, 30, 6);
+    this.add.text(480, 501, '全30ステージ / 60秒チャレンジ / 端末内ランキング', textStyle(15, '#d8faff')).setOrigin(0.5);
   }
 
   private startScene(sceneKey: string): void {
@@ -37,49 +74,19 @@ export class TitleScene extends Phaser.Scene {
     this.scene.start(sceneKey);
   }
 
-  private createButton(x: number, y: number, label: string, onClick: () => void): void {
-    const box = this.add.rectangle(x, y, 270, 42, 0x101a32, 0.95).setStrokeStyle(2, 0x42f8ff);
-    const text = this.add.text(x, y, label, {
-      fontFamily: 'system-ui, sans-serif',
-      fontSize: '22px',
-      color: '#f7fbff',
-    }).setOrigin(0.5);
-
-    box.setInteractive({ useHandCursor: true }).on('pointerdown', onClick);
-    text.setInteractive({ useHandCursor: true }).on('pointerdown', onClick);
-  }
-
   private createAudioButton(): void {
-    const box = this.add.rectangle(824, 44, 142, 34, 0x101a32, 0.9).setStrokeStyle(2, 0xff4ff6);
-    this.audioButtonText = this.add.text(824, 44, this.audioLabel(), {
-      fontFamily: 'system-ui, sans-serif',
-      fontSize: '17px',
-      color: '#f7fbff',
-    }).setOrigin(0.5);
-    const toggle = () => {
+    this.audioButton = createNeonButton(this, 824, 44, 148, 36, this.audioLabel(), () => {
       AudioSystem.shared.toggle();
       AudioSystem.shared.play('button');
-      this.audioButtonText.setText(this.audioLabel());
-    };
-    box.setInteractive({ useHandCursor: true }).on('pointerdown', toggle);
-    this.audioButtonText.setInteractive({ useHandCursor: true }).on('pointerdown', toggle);
+      this.audioButton.destroy();
+      this.createAudioButton();
+    }, {
+      accent: AudioSystem.shared.isEnabled ? UI_COLORS.cyan : UI_COLORS.red,
+      fontSize: 16,
+    });
   }
 
   private audioLabel(): string {
     return AudioSystem.shared.isEnabled ? '音声 ON' : '音声 OFF';
-  }
-
-  private drawBackground(): void {
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x050712, 1);
-    graphics.fillRect(0, 0, 960, 540);
-    graphics.lineStyle(1, 0x172642, 0.5);
-    for (let x = -40; x < 1040; x += 48) {
-      for (let y = -40; y < 620; y += 42) {
-        graphics.strokeCircle(x + ((y / 42) % 2) * 24, y, 18);
-      }
-    }
-    graphics.lineStyle(2, 0x42f8ff, 0.35);
-    graphics.lineBetween(90, 270, 850, 270);
   }
 }

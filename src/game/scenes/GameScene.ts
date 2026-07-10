@@ -19,6 +19,7 @@ import { StageSystem } from '../systems/StageSystem';
 import { TimerSystem } from '../systems/TimerSystem';
 import { PauseOverlay } from '../ui/PauseOverlay';
 import { ProgressBar } from '../ui/ProgressBar';
+import { UI_COLORS, createNeonButton } from '../ui/theme';
 import type { BaseObstacle } from '../obstacles/BaseObstacle';
 import type { CollisionShape, ResultPayload, StageDefinition } from '../types/game';
 
@@ -35,7 +36,7 @@ export class GameScene extends Phaser.Scene {
   private timerText!: Phaser.GameObjects.Text;
   private stageText!: Phaser.GameObjects.Text;
   private statusText!: Phaser.GameObjects.Text;
-  private pauseButton!: Phaser.GameObjects.Text;
+  private pauseButton!: Phaser.GameObjects.Container;
   private pauseOverlay: PauseOverlay | null = null;
   private elapsedSeconds = 0;
   private locked = false;
@@ -71,6 +72,7 @@ export class GameScene extends Phaser.Scene {
     this.background.setDepth(-10);
     this.drawBackground(false);
     this.alarmOverlay = this.add.rectangle(480, 270, 960, 540, 0xff1f3d, 0).setDepth(-5);
+    this.drawHudFrame();
 
     this.progress = new ProgressBar(this, this.stageSystem.totalStages);
     this.timerText = this.add.text(480, 48, '', {
@@ -88,12 +90,10 @@ export class GameScene extends Phaser.Scene {
       fontSize: '22px',
       color: '#f7fbff',
     }).setOrigin(0.5);
-    this.pauseButton = this.add.text(906, 42, 'II', {
-      fontFamily: 'Arial Black, system-ui, sans-serif',
-      fontSize: '24px',
-      color: '#f7fbff',
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-    this.pauseButton.on('pointerdown', () => this.togglePause());
+    this.pauseButton = createNeonButton(this, 906, 42, 72, 38, 'II', () => this.togglePause(), {
+      accent: UI_COLORS.cyan,
+      fontSize: 20,
+    });
 
     this.player = new Player(this);
     this.target = new TargetCore(this);
@@ -261,10 +261,31 @@ export class GameScene extends Phaser.Scene {
     }
     this.background.lineStyle(2, 0x42f8ff, 0.28);
     this.background.lineBetween(PLAYER_X, LASER_Y, TARGET_X, LASER_Y);
+    this.background.fillStyle(0x0b1228, 0.86);
+    this.background.fillRect(0, 82, 208, 96);
+    this.background.fillRect(752, 82, 208, 96);
+    this.background.fillRect(0, 362, 208, 96);
+    this.background.fillRect(752, 362, 208, 96);
+    this.background.lineStyle(2, UI_COLORS.cyan, 0.36);
+    this.background.strokeRect(10, 94, 186, 72);
+    this.background.strokeRect(764, 94, 186, 72);
+    this.background.strokeRect(10, 374, 186, 72);
+    this.background.strokeRect(764, 374, 186, 72);
     if (warning) {
       this.background.lineStyle(6, 0xff253f, 0.82);
       this.background.strokeRect(6, 6, 948, 528);
     }
+  }
+
+  private drawHudFrame(): void {
+    const hud = this.add.graphics();
+    hud.setDepth(-1);
+    hud.fillStyle(0x02040b, 0.76);
+    hud.fillRoundedRect(34, 12, 892, 56, 8);
+    hud.lineStyle(2, UI_COLORS.cyan, 0.62);
+    hud.strokeRoundedRect(34, 12, 892, 56, 8);
+    hud.lineStyle(1, UI_COLORS.magenta, 0.42);
+    hud.lineBetween(64, 66, 896, 66);
   }
 
   private showFloatingText(label: string, color: string): void {

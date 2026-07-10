@@ -48,6 +48,8 @@ export type ObstacleKind =
   | 'shutterGate'
   | 'staticBlock';
 
+export type ObstacleColorVariant = 'cyan' | 'magenta' | 'red' | 'amber';
+
 export type ObstacleDefinition = {
   id: string;
   kind: ObstacleKind;
@@ -68,6 +70,8 @@ export type ObstacleDefinition = {
   count?: number;
   gap?: number;
   spread?: number;
+  colorVariant?: ObstacleColorVariant;
+  reverseInterval?: number;
 };
 
 export type StageDefinition = {

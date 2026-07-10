@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { AudioSystem } from '../systems/AudioSystem';
 import { StorageSystem } from '../systems/StorageSystem';
+import { UI_COLORS, createNeonButton, drawNeonBackdrop, drawNeonPanel, textStyle } from '../ui/theme';
 
 export class RecordsScene extends Phaser.Scene {
   private rows: Phaser.GameObjects.GameObject[] = [];
@@ -10,22 +11,19 @@ export class RecordsScene extends Phaser.Scene {
   }
 
   public create(): void {
-    this.drawBackground();
-    this.add.text(480, 62, '記録', {
-      fontFamily: 'system-ui, sans-serif',
-      fontSize: '42px',
-      color: '#f7fbff',
-    }).setOrigin(0.5);
+    drawNeonBackdrop(this, 'menu');
+    this.add.text(480, 62, '記録', textStyle(42, '#f7fbff', true)).setOrigin(0.5).setShadow(0, 0, '#42f8ff', 14);
+    drawNeonPanel(this, 134, 104, 692, 330, UI_COLORS.cyan);
     this.renderRecords();
-    this.createButton(380, 480, '記録削除', () => {
+    createNeonButton(this, 380, 480, 170, 42, '記録削除', () => {
       AudioSystem.shared.play('button');
       StorageSystem.clearRecords();
       this.renderRecords();
-    });
-    this.createButton(580, 480, '戻る', () => {
+    }, { accent: UI_COLORS.red });
+    createNeonButton(this, 580, 480, 170, 42, '戻る', () => {
       AudioSystem.shared.play('button');
       this.scene.start('TitleScene');
-    });
+    }, { accent: UI_COLORS.magenta });
   }
 
   private renderRecords(): void {
@@ -34,59 +32,29 @@ export class RecordsScene extends Phaser.Scene {
     const records = StorageSystem.loadRecords();
 
     if (records.length === 0) {
-      this.rows.push(this.add.text(480, 250, 'まだ記録がありません', this.rowStyle('#42f8ff')).setOrigin(0.5));
+      this.rows.push(this.add.text(480, 270, 'まだ記録がありません', textStyle(22, '#42f8ff')).setOrigin(0.5));
       return;
     }
 
-    this.rows.push(this.add.text(166, 112, 'RANK', this.headerStyle()).setOrigin(0.5));
-    this.rows.push(this.add.text(282, 112, 'RESULT', this.headerStyle()).setOrigin(0.5));
-    this.rows.push(this.add.text(454, 112, 'STAGE', this.headerStyle()).setOrigin(0.5));
-    this.rows.push(this.add.text(608, 112, 'TIME', this.headerStyle()).setOrigin(0.5));
-    this.rows.push(this.add.text(760, 112, 'HIT', this.headerStyle()).setOrigin(0.5));
+    const headers = [
+      ['RANK', 176],
+      ['RESULT', 294],
+      ['STAGE', 454],
+      ['TIME', 608],
+      ['HIT', 760],
+    ] as const;
+    headers.forEach(([label, x]) => this.rows.push(this.add.text(x, 128, label, textStyle(16, '#ff85f7', true)).setOrigin(0.5)));
 
     records.forEach((record, index) => {
-      const y = 150 + index * 30;
+      const y = 164 + index * 28;
+      const stripe = this.add.rectangle(480, y, 640, 24, index % 2 === 0 ? 0x0b1228 : 0x101a32, 0.72);
       const color = record.cleared ? '#42f8ff' : '#f7fbff';
-      this.rows.push(this.add.text(166, y, `${index + 1}`, this.rowStyle(color)).setOrigin(0.5));
-      this.rows.push(this.add.text(282, y, record.cleared ? 'CLEAR' : 'FAILED', this.rowStyle(color)).setOrigin(0.5));
-      this.rows.push(this.add.text(454, y, `${record.reachedStage}`, this.rowStyle(color)).setOrigin(0.5));
-      this.rows.push(this.add.text(608, y, `${record.remainingTime.toFixed(1)}秒`, this.rowStyle(color)).setOrigin(0.5));
-      this.rows.push(this.add.text(760, y, `${record.accuracy}%`, this.rowStyle(color)).setOrigin(0.5));
+      this.rows.push(stripe);
+      this.rows.push(this.add.text(176, y, `${index + 1}`, textStyle(17, color, true)).setOrigin(0.5));
+      this.rows.push(this.add.text(294, y, record.cleared ? 'CLEAR' : 'FAILED', textStyle(17, color, true)).setOrigin(0.5));
+      this.rows.push(this.add.text(454, y, `${record.reachedStage}`, textStyle(17, color)).setOrigin(0.5));
+      this.rows.push(this.add.text(608, y, `${record.remainingTime.toFixed(1)}秒`, textStyle(17, color)).setOrigin(0.5));
+      this.rows.push(this.add.text(760, y, `${record.accuracy}%`, textStyle(17, color)).setOrigin(0.5));
     });
-  }
-
-  private createButton(x: number, y: number, label: string, onClick: () => void): void {
-    const box = this.add.rectangle(x, y, 170, 42, 0x101a32, 1).setStrokeStyle(2, 0x42f8ff);
-    const text = this.add.text(x, y, label, this.rowStyle('#f7fbff')).setOrigin(0.5);
-    box.setInteractive({ useHandCursor: true }).on('pointerdown', onClick);
-    text.setInteractive({ useHandCursor: true }).on('pointerdown', onClick);
-  }
-
-  private drawBackground(): void {
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x050712, 1);
-    graphics.fillRect(0, 0, 960, 540);
-    graphics.lineStyle(1, 0x172642, 0.5);
-    for (let x = -40; x < 1040; x += 48) {
-      for (let y = -40; y < 620; y += 42) {
-        graphics.strokeCircle(x + ((y / 42) % 2) * 24, y, 18);
-      }
-    }
-  }
-
-  private headerStyle(): Phaser.Types.GameObjects.Text.TextStyle {
-    return {
-      fontFamily: 'Arial Black, system-ui, sans-serif',
-      fontSize: '18px',
-      color: '#ff85f7',
-    };
-  }
-
-  private rowStyle(color: string): Phaser.Types.GameObjects.Text.TextStyle {
-    return {
-      fontFamily: 'system-ui, sans-serif',
-      fontSize: '20px',
-      color,
-    };
   }
 }

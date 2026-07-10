@@ -87,7 +87,7 @@ function createRotatingRectangle(definition: ObstacleDefinition, elapsedSeconds:
       center: { x: definition.x, y },
       width: definition.width,
       height: definition.height,
-      rotation: (definition.rotation ?? 0) + elapsedSeconds * (definition.angularSpeed ?? definition.speed) + definition.phase,
+      rotation: effectiveAngle(definition, elapsedSeconds, definition.angularSpeed ?? definition.speed),
     },
   };
 }
@@ -95,7 +95,7 @@ function createRotatingRectangle(definition: ObstacleDefinition, elapsedSeconds:
 function createRotatingGroup(definition: ObstacleDefinition, elapsedSeconds: number): CollisionShape[] {
   const count = Math.max(2, definition.count ?? 4);
   const radius = definition.radius ?? 86;
-  const rotation = (definition.rotation ?? 0) + elapsedSeconds * (definition.angularSpeed ?? definition.speed) + definition.phase;
+  const rotation = effectiveAngle(definition, elapsedSeconds, definition.angularSpeed ?? definition.speed);
 
   return Array.from({ length: count }, (_, index) => {
     const angle = rotation + (Math.PI * 2 * index) / count;
@@ -115,7 +115,7 @@ function createRotatingGroup(definition: ObstacleDefinition, elapsedSeconds: num
 }
 
 function createOrbitingBlock(definition: ObstacleDefinition, elapsedSeconds: number): CollisionShape {
-  const angle = elapsedSeconds * definition.speed + definition.phase;
+  const angle = effectiveAngle(definition, elapsedSeconds, definition.speed);
   const radius = definition.radius ?? definition.amplitude;
   return {
     type: 'obb',
@@ -133,7 +133,7 @@ function createOrbitingBlock(definition: ObstacleDefinition, elapsedSeconds: num
 
 function createArcGate(definition: ObstacleDefinition, elapsedSeconds: number): CollisionShape[] {
   const count = Math.max(1, definition.count ?? 1);
-  const rotation = (definition.rotation ?? 0) + elapsedSeconds * (definition.angularSpeed ?? definition.speed) + definition.phase;
+  const rotation = effectiveAngle(definition, elapsedSeconds, definition.angularSpeed ?? definition.speed);
   const arcSize = (definition.endAngle ?? Math.PI * 0.7) - (definition.startAngle ?? 0);
   const radius = definition.radius ?? 92;
   const thickness = definition.thickness ?? definition.height;
@@ -165,4 +165,21 @@ function aabbFromCenter(x: number, y: number, width: number, height: number): Co
 
 function oscillate(base: number, definition: ObstacleDefinition, elapsedSeconds: number): number {
   return base + Math.sin(elapsedSeconds * definition.speed + definition.phase) * definition.amplitude;
+}
+
+export function effectiveAngle(definition: ObstacleDefinition, elapsedSeconds: number, speed: number): number {
+  const base = (definition.rotation ?? 0) + definition.phase;
+  const reverseInterval = definition.reverseInterval;
+
+  if (!reverseInterval || reverseInterval <= 0) {
+    return base + elapsedSeconds * speed;
+  }
+
+  const direction = speed >= 0 ? 1 : -1;
+  const magnitude = Math.abs(speed);
+  const cycle = Math.floor(elapsedSeconds / reverseInterval);
+  const local = elapsedSeconds % reverseInterval;
+  const reversibleTravel = cycle % 2 === 0 ? local : reverseInterval - local;
+
+  return base + direction * magnitude * reversibleTravel;
 }
