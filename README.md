@@ -15,6 +15,14 @@ npm run dev
 http://localhost:5173/
 ```
 
+## 公開URL
+
+GitHub Pagesで公開した場合のURLは以下です。
+
+```text
+https://bonbon-create.github.io/sukimagame/
+```
+
 ## 操作方法
 
 - クリック / タップ: レーザー発射
