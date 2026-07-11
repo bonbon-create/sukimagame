@@ -38,7 +38,7 @@ npm run cap:sync
 npm run cap:open:ios
 ```
 
-App Store申請に向けた準備メモは `docs/app-store-prep.md` にまとめています。
+自分専用iPhoneアプリとして入れる手順は `docs/personal-ios-install.md` にまとめています。App Store申請に向けた準備メモは `docs/app-store-prep.md` にあります。
 
 ## ゲームルール
 
