@@ -5,6 +5,12 @@ type PatternBuilder = (stageNumber: number, tier: number) => ObstacleDefinition[
 
 const variants: StageDefinition['backgroundVariant'][] = ['cyan', 'magenta', 'amber'];
 
+const timingGateGapOffsets = [
+  10, 30, -50, 20, 50, -10, -10, -60, -10, -10,
+  -30, 40, 5, 40, 20, -5, 5, -25, -10, -15,
+  -15, 10, -35, 20, 10, 5, -40, -40, -10, 0,
+];
+
 const patternBuilders: PatternBuilder[] = [
   verticalTwoBlocks,
   verticalFourBlocks,
@@ -228,12 +234,13 @@ function sideBlockers(stageNumber: number, tier: number, xs: number[]): Obstacle
 
 function difficultyGates(stageNumber: number, tier: number, patternIndex: number): ObstacleDefinition[] {
   const patternOffset = patternIndex * 0.11;
+  const gapOffset = timingGateGapOffsets[stageNumber - 1] ?? 0;
 
   if (tier === 0) {
     const earlyRank = stageNumber - 1;
     return [
       block(stageNumber, 'timing-gate', 'slidingPair', 500, LASER_Y, 44, 52, 136, 1.28 + earlyRank * 0.055, -Math.PI / 2 + patternOffset * 0.7, {
-        gap: -54 - earlyRank * 3.2,
+        gap: -54 - earlyRank * 3.2 + gapOffset,
         colorVariant: patternIndex >= 5 ? 'magenta' : 'cyan',
       }),
     ];
@@ -241,7 +248,7 @@ function difficultyGates(stageNumber: number, tier: number, patternIndex: number
 
   if (tier === 1) {
     const midRank = stageNumber - 11;
-    const gap = -72 - midRank * 2.6 - (patternIndex >= 7 ? 12 : 0);
+    const gap = -72 - midRank * 2.6 - (patternIndex >= 7 ? 12 : 0) + gapOffset;
     const speed = 1.58 + midRank * 0.05;
     const phaseStep = 0.12 + midRank * 0.012;
     return [
@@ -258,7 +265,7 @@ function difficultyGates(stageNumber: number, tier: number, patternIndex: number
 
   const lateRank = stageNumber - 21;
   const usesThreeGates = lateRank >= 6;
-  const gap = -88 - lateRank * 2.6 + (patternIndex === 1 ? 10 : 0) + (patternIndex === 0 || patternIndex === 8 ? -4 : 0);
+  const gap = -88 - lateRank * 2.6 + (patternIndex === 1 ? 10 : 0) + (patternIndex === 0 || patternIndex === 8 ? -4 : 0) + gapOffset;
   const speed = 1.94 + lateRank * 0.055;
   const phaseStep = usesThreeGates ? 0.11 + lateRank * 0.006 : 0.1;
 

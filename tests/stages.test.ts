@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { REFIRE_COOLDOWN_MS, START_TIME_SECONDS } from '../src/game/constants';
 import { STAGES } from '../src/game/data/stages';
 import { isStageClearAt, simulateStageSolvability } from '../src/game/systems/StageSolvability';
 import { effectiveAngle } from '../src/game/obstacles/obstacleGeometry';
@@ -85,6 +86,18 @@ describe('stage data', () => {
     expect(outOfCurveStages).toEqual([]);
   });
 
+  it('keeps a full clear possible with a small miss budget', () => {
+    const firstClearRouteSeconds = STAGES.reduce((total, stage) => {
+      const result = simulateStageSolvability(stage);
+      return total + (result.firstClearTime ?? START_TIME_SECONDS);
+    }, 0);
+    const transitionSeconds = STAGES.reduce((total, stage) => total + stage.transitionDuration / 1000, 0);
+    const threeMissPenaltySeconds = (REFIRE_COOLDOWN_MS / 1000) * 3;
+
+    expect(firstClearRouteSeconds + transitionSeconds + threeMissPenaltySeconds).toBeLessThan(START_TIME_SECONDS);
+    expect(firstClearRouteSeconds + transitionSeconds).toBeGreaterThan(START_TIME_SECONDS - 10);
+  });
+
   it('supports reversible rotating obstacles', () => {
     const definition = {
       id: 'reverse-test',
@@ -113,19 +126,19 @@ function difficultyProfile(stageNumber: number): {
   maxRun: number;
 } {
   if (stageNumber <= 5) {
-    return { minWindows: 2, maxWindows: 7, minSamples: 100, maxSamples: 300, maxRun: 155 };
+    return { minWindows: 2, maxWindows: 8, minSamples: 110, maxSamples: 280, maxRun: 120 };
   }
   if (stageNumber <= 10) {
-    return { minWindows: 2, maxWindows: 7, minSamples: 85, maxSamples: 230, maxRun: 125 };
+    return { minWindows: 2, maxWindows: 5, minSamples: 90, maxSamples: 140, maxRun: 90 };
   }
   if (stageNumber <= 15) {
-    return { minWindows: 1, maxWindows: 6, minSamples: 35, maxSamples: 180, maxRun: 95 };
+    return { minWindows: 1, maxWindows: 8, minSamples: 60, maxSamples: 100, maxRun: 50 };
   }
   if (stageNumber <= 20) {
-    return { minWindows: 1, maxWindows: 6, minSamples: 40, maxSamples: 150, maxRun: 78 };
+    return { minWindows: 1, maxWindows: 6, minSamples: 40, maxSamples: 90, maxRun: 40 };
   }
   if (stageNumber <= 25) {
-    return { minWindows: 1, maxWindows: 5, minSamples: 24, maxSamples: 120, maxRun: 64 };
+    return { minWindows: 1, maxWindows: 6, minSamples: 24, maxSamples: 70, maxRun: 30 };
   }
-  return { minWindows: 1, maxWindows: 5, minSamples: 12, maxSamples: 112, maxRun: 52 };
+  return { minWindows: 1, maxWindows: 5, minSamples: 12, maxSamples: 80, maxRun: 40 };
 }
